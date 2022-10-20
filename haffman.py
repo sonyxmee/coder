@@ -74,9 +74,8 @@ def decoding(string, codes):
     i = 0
 
     while i < len(string):
-
         for code in codes:
-
+            # возвращает наименьший индекс, по которому обнаруживается начало указанной подстроки в исходной
             if string[i:].find(codes[code]) == 0:
                 res += code
                 i += len(codes[code])
