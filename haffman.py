@@ -1,4 +1,4 @@
-# Закодируйте любую строку по алгоритму Хаффмана.
+# кодирование строки по алгоритму Хаффмана.
 from collections import Counter
 import pickle
 
@@ -60,7 +60,7 @@ def get_tree(string):
     return [key for key in string_count][0]
 
 
-def coding(string, codes):
+def code_haf(string, codes):
     res = ''
 
     for symbol in string:
@@ -69,7 +69,7 @@ def coding(string, codes):
     return res
 
 
-def decoding(string, codes):
+def decode_haf(string, codes):
     res = ''
     i = 0
 
@@ -83,36 +83,20 @@ def decoding(string, codes):
     return res
 
 
-def run(filename):
-    try:
-        with open(filename, 'r', encoding='utf-8') as file:
-            content_file = file.read()
+def run(filename=None, content=None):
+    if filename:
+        try:
+            with open(filename, 'r', encoding='utf-8') as file:
+                content_file = file.read()
 
-    except IOError:
-        print('Невозможно открыть файл')
+        except IOError:
+            print('Невозможно открыть файл')
+    else:
+        content_file = content
     tree = get_tree(content_file)
     codes = get_code(tree)
 
     with open('codes.txt', 'wb') as out:
         pickle.dump(codes, out)
 
-    return coding(content_file, codes)
-
-# my_string = input('Введите строку для сжатия: ')
-# tree = get_tree(my_string)
-#
-# codes = get_code(tree)
-# print(f'Шифр: {codes}')
-#
-# coding_str = coding(my_string, codes)
-# print('Сжатая строка: ', coding_str)
-#
-# print('Длина закодированной строки: ', len(coding_str))
-#
-# decoding_str = decoding(coding_str, codes)
-# print('Исходная строка: ', decoding_str)
-#
-# if my_string == decoding_str:
-#     print('Успешно!')
-# else:
-#     print('Ошибка!')
+    return code_haf(content_file, codes)

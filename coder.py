@@ -1,13 +1,17 @@
 import os
+
+import haffman
+import rle_my
 from haffman import *
+from rle_my import *
 
 
 class CoderDecoder:
 
     def __init__(self):
         self.signature = 'botik'
-        self.version = '0002'
-        self.algorithms = '100000'
+        self.version = '0003'
+        self.algorithms = '110000'
         self.size = '0000'
         self.filename = 'test'
 
@@ -23,8 +27,14 @@ class CoderDecoder:
         hex_header = self.get_header(filename)
         version = hex_header[10:14]
         algorithm = hex_header[14:20]
-        if version == '0002' and algorithm == '100000':
-            coding_content_file = run(filename).encode().hex()
+        if algorithm == '100000':
+            coding_content_file = haffman.run(filename).encode().hex()
+        elif algorithm == '010000':
+            coding_content_file = rle_my.run(filename).encode().hex()
+            bytes.fromhex(coding_content_file)
+        elif algorithm == '110000':
+            content = rle_my.run(filename)
+            coding_content_file = haffman.run(content=content).encode().hex()
         else:
             try:
                 with open(filename, 'rb') as file:
@@ -47,17 +57,24 @@ class CoderDecoder:
             if content.startswith(hex_signature):
                 name = '.'.join(filename.split('.')[0:-1])  # fullname first file
                 file_extension = filename.split('.')[-2]
-                # full_name = name + '.' + file_extension
                 without_header = bytes.fromhex(content[len(self.get_header(name)):])
                 without_header = bytes.decode(without_header, encoding='utf-8')
                 print(f'Длина сжатых данных: {len(without_header)}')
-                version = content[len(hex_signature):14]
                 algorithm = content[14:20]
-                if version == '0002' and algorithm == '100000':
+                if algorithm == '100000':
                     with open('codes.txt', 'rb') as inp:
                         codes = pickle.load(inp)
                     print(f'Коды символов:\n{codes}')
-                    decoding_content = decoding(without_header, codes)
+                    decoding_content = decode_haf(without_header, codes)
+                elif algorithm == '010000':
+                    decoding_content = decode_rle(without_header)
+                    print()
+                elif algorithm == '110000':
+                    with open('codes.txt', 'rb') as inp:
+                        codes = pickle.load(inp)
+                    print(f'Коды символов:\n{codes}')
+                    decode_haf_content = decode_haf(without_header, codes)
+                    decoding_content = decode_rle(decode_haf_content)
                 else:
                     decoding_content = without_header
 
